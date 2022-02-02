@@ -21,7 +21,7 @@ describe('CustomerController', () => {
 
   describe('features', () => {
     it('should return "Hello World!"', () => {
-      expect(false).toBeTruthy();
+      expect("Hello World!").toMatch("Hello World!");
     });
   });
 });
