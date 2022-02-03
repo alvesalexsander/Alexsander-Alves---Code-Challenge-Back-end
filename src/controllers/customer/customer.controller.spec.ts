@@ -4,24 +4,34 @@ import { CustomerService } from '../../services/customer/customer.service';
 import { DBProviders, EntitiesProviders, ServicesProviders, Provider } from '../../providers';
 import { CustomerController } from './customer.controller';
 import { Types } from 'mongoose';
+import { custom } from 'joi';
 
 describe('CustomerController', () => {
   let customerController: CustomerController;
   let customerService: CustomerService;
 
+  const validCustomerBody = {
+    name: 'Assim Lin',
+    email: 'assim@lin.com',
+    phoneNumber: '22999999002',
+  };
+
+  const invalidCustomerBody = {
+    ...validCustomerBody,
+    email: 'assimlin.com', // invalid email
+  }
+
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [CustomerController],
       providers: [
-        ServicesProviders[Provider.CUSTOMER_SERVICE],
-        CustomerService,
         EntitiesProviders[Provider.CUSTOMER_MODEL],
-        ...Object.values(DBProviders)
+        ...Object.values(DBProviders),
+        CustomerService
       ]
     }).compile();
 
     customerController = app.get<CustomerController>(CustomerController);
-    customerService = app.get<CustomerService>(CustomerService);
   });
 
   describe('features', () => {
@@ -30,15 +40,40 @@ describe('CustomerController', () => {
     });
 
     it('should return a customer', async () => {
-      const customerData = new Customer();
-      customerData.name = 'Assim Lin';
-      customerData.phoneNumber = '00000000000';
-      customerData.email = 'assim@lin.com';
-
-      const createdCustomer = await customerService.createCustomer(customerData);
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as any);
       const customer = await customerController.getCustomerById(createdCustomer._id.toString());
-      expect(customer).toBeInstanceOf(Customer);
-      customerService.deleteCustomer(customer._id);
+      expect(customer).toBeTruthy();
+      await customerController.deleteCustomer(customer._id);
+    });
+
+    it('should create a customer', async () => {
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
+      expect(createdCustomer).toBeTruthy();
+      await customerController.deleteCustomer(createdCustomer._id);
+    });
+
+    it('should not create a customer', async () => {
+      await customerController.createCustomer(invalidCustomerBody as Customer).then(() => {
+        expect(false).toBeTruthy();
+      }).catch((err) => {
+        expect(Object.keys(err.errors)).toContain('email');
+      });
+    });
+
+    it('should update a customer', async () => {
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
+      await customerController.updateCustomer(createdCustomer._id.toString(), { name: 'Assim Lan' });
+      const updatedCustomer = await customerController.getCustomerById(createdCustomer._id.toString());
+      expect(updatedCustomer.name).toBe('Assim Lan');
+      await customerController.deleteCustomer(createdCustomer._id);
+    });
+
+    it('should delete a customer', async () => {
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
+      await customerController.deleteCustomer(createdCustomer._id).then((res) => {
+        console.log(res);
+        expect(true).toBeTruthy();
+      });
     });
 
   });

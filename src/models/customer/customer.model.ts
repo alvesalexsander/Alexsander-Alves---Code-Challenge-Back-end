@@ -14,7 +14,7 @@ export class Customer {
   @Prop({ type: String, required: true, validate: EmailRegexValidator })
   email;
 
-  @Prop({ type: Date, default: DateTime.local().toJSDate(), required: true })
+  @Prop({ type: Date, default: DateTime.local().toJSDate() })
   createdAt;
 
   @Prop({ type: Date, required: false })

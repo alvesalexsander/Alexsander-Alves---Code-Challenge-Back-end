@@ -8,12 +8,12 @@ export class CustomerService {
 
   constructor(@Inject('CUSTOMER_MODEL') private customerModel) { }
 
-  async getAllCustomers(): Promise<CustomerDocument[]> {
-    return this.customerModel.find({});
+  async getAllCustomers(filter: any): Promise<CustomerDocument[]> {
+    return this.customerModel.find(filter);
   }
 
-  async getCustomer(query: any): Promise<CustomerDocument> {
-    return this.customerModel.findOne(query);
+  async getCustomer(filter: any): Promise<CustomerDocument> {
+    return this.customerModel.findOne(filter);
   }
 
   async createCustomer(customer: Customer): Promise<any> {
