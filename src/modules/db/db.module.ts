@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { DBProviders } from '../../providers';
 
 @Module({
-  providers: [...Object.values(DBProviders)]
+  providers: [DBProviders.MONGODB_CONNECTION]
 })
 export class DBModule {}

@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { bool } from 'joi';
-import { Customer, CustomerDocument } from '../../models';
+import { Customer } from '../../models';
 import { DBModule } from '../../modules';
 import { DBProviders, EntitiesProviders, Provider } from '../../providers';
 import { CustomerService } from './customer.service';
@@ -9,6 +8,11 @@ import { CustomerService } from './customer.service';
 describe('CustomerService', () => {
   let customerService;
   const model = new Customer();
+  model.name = 'Assim Lin';
+  model.email = 'assim@lin.com';
+  model.phoneNumber = '22999999999';
+  
+  const toClean = [];
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -23,20 +27,21 @@ describe('CustomerService', () => {
     customerService = app.get<CustomerService>(CustomerService);
   });
 
-  it('should create a new customer', async () => {
-    const data = new Customer();
-    data.name = 'Assim Lin';
-    data.email = 'assim@lin.com';
-    data.phoneNumber = '22999999999';
+  afterAll(async () => {
+    await Promise.all(toClean);
+  });
 
-    const createdCustomer = await customerService.createCustomer(data);
+  it('should create a new customer', async () => {
+
+    const createdCustomer = await customerService.createCustomer(model);
+    toClean.push(customerService.deleteCustomer(createdCustomer._id));
     for (const key in model) {
       expect(createdCustomer).toHaveProperty(key);
     }
   });
 
   it('should list all customers', async () => {
-    const customers = await customerService.getAllCustomers();
+    const customers = await customerService.getCustomers();
     expect(customers).toBeInstanceOf(Array);
 
     if (customers?.length) {
@@ -49,6 +54,7 @@ describe('CustomerService', () => {
   });
 
   it('should get a customer', async () => {
+    await customerService.createCustomer(model);
     const customer = await customerService.getCustomer({ name: 'Assim Lin' });
     for (const key in model) {
       expect(customer).toHaveProperty(key);
@@ -56,12 +62,11 @@ describe('CustomerService', () => {
   });
 
   it('should update an existing customer', async () => {
+    await customerService.createCustomer(model);
     const customer = await customerService.getCustomer({ name: 'Assim Lin' });
 
     const update = { name: 'newName' };
-    await customerService.updateCustomer(customer?.id, update);
-
-    const updatedCustomer = await customerService.getCustomer({ name: 'newName' });
+    const updatedCustomer = await customerService.updateCustomer(customer?.id, update);
     expect(updatedCustomer.name).toBe('newName');
   });
 
@@ -69,7 +74,6 @@ describe('CustomerService', () => {
     const customer = await customerService.getCustomer({ name: 'newName' });
     await customerService.deleteCustomer(customer._id);
     const deletedCustomer = await customerService.getCustomer({ name: 'newName' });
-    // TODO apagar collection no beforeAll
     expect(deletedCustomer).toBe(null);
   });
 });

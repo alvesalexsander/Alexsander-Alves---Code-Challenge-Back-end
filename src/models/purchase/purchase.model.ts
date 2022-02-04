@@ -15,13 +15,13 @@ export class Purchase {
   @Prop({ type: Types.ObjectId, required: true, immutable: true })
   buyerId;
 
-  // @Prop({ type: Types.Array, required: true })
-  // items;
+  @Prop({ type: Array, required: true })
+  items;
 
   @Prop({ type: Number, required: true })
   total;
 
-  @Prop({ type: Number, required: true })
+  @Prop({ type: String, default: '0' })
   status;
 
   @Prop({ type: Date, default: DateTime.local().toJSDate(), required: true })
@@ -31,4 +31,3 @@ export class Purchase {
   updatedAt;
 
 }
-

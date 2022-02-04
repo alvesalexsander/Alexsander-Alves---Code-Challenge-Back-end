@@ -1,14 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Customer } from '../../models';
 import { CustomerService } from '../../services/customer/customer.service';
-import { DBProviders, EntitiesProviders, ServicesProviders, Provider } from '../../providers';
+import { DBProviders, EntitiesProviders, Provider } from '../../providers';
 import { CustomerController } from './customer.controller';
-import { Types } from 'mongoose';
-import { custom } from 'joi';
+import { getMessage } from '../../utils/messages/get-message';
 
 describe('CustomerController', () => {
   let customerController: CustomerController;
-  let customerService: CustomerService;
+  const toClean = [];
 
   const validCustomerBody = {
     name: 'Assim Lin',
@@ -34,27 +33,30 @@ describe('CustomerController', () => {
     customerController = app.get<CustomerController>(CustomerController);
   });
 
+  afterAll(async () => {
+    await Promise.all(toClean);
+  })
+
   describe('features', () => {
-    it('should return "pong"', () => {
-      expect(customerController.ping()).toBe('pong');
-    });
 
     it('should return a customer', async () => {
-      const createdCustomer = await customerController.createCustomer(validCustomerBody as any);
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
       const customer = await customerController.getCustomerById(createdCustomer._id.toString());
+      toClean.push(customerController.deleteCustomer(customer._id));
+    
       expect(customer).toBeTruthy();
-      await customerController.deleteCustomer(customer._id);
     });
 
     it('should create a customer', async () => {
       const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
+      toClean.push(customerController.deleteCustomer(createdCustomer._id));
       expect(createdCustomer).toBeTruthy();
-      await customerController.deleteCustomer(createdCustomer._id);
     });
 
-    it('should not create a customer', async () => {
+    it('should not create a customer with invalid data', async () => {
       await customerController.createCustomer(invalidCustomerBody as Customer).then(() => {
-        expect(false).toBeTruthy();
+        // se o cliente for criado com sucesso, dispara um erro intencional.
+        throw new Error('should not create a customer :: failed :: customer created with invalid email');
       }).catch((err) => {
         expect(Object.keys(err.errors)).toContain('email');
       });
@@ -62,18 +64,35 @@ describe('CustomerController', () => {
 
     it('should update a customer', async () => {
       const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
-      await customerController.updateCustomer(createdCustomer._id.toString(), { name: 'Assim Lan' });
+      const response = await customerController.updateCustomer(createdCustomer._id, { name: 'Assim Lan' });
       const updatedCustomer = await customerController.getCustomerById(createdCustomer._id.toString());
+      toClean.push(customerController.deleteCustomer(createdCustomer._id));
+
+      expect(response).toBe(getMessage('UPDATE_CUSTOMER_SUCCESS'));
       expect(updatedCustomer.name).toBe('Assim Lan');
-      await customerController.deleteCustomer(createdCustomer._id);
+    });
+
+    it('should not update a customer that doesnt exist', async () => {
+      const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
+      const response = await customerController.updateCustomer('iajsklaksj21', { name: 'Assim Lan' });
+      toClean.push(customerController.deleteCustomer(createdCustomer._id));
+
+      expect(response).toBe(getMessage('UPDATE_CUSTOMER_NONE'));
     });
 
     it('should delete a customer', async () => {
       const createdCustomer = await customerController.createCustomer(validCustomerBody as Customer);
-      await customerController.deleteCustomer(createdCustomer._id).then((res) => {
-        console.log(res);
-        expect(true).toBeTruthy();
+      const response = await customerController.deleteCustomer(createdCustomer._id).catch((err) => {
+        throw err;
       });
+      expect(response).toEqual(getMessage('DELETE_CUSTOMER_SUCCESS'));
+    });
+
+    it('should delete no customer', async () => {
+      const response = await customerController.deleteCustomer('1oidjak35612').catch((err) => {
+        throw err;
+      });
+      expect(response).toEqual(getMessage('DELETE_CUSTOMER_NONE'));
     });
 
   });

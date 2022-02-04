@@ -10,7 +10,7 @@ export class Product {
   @Prop({ type: Number, required: true })
   stock;
 
-  @Prop({ type: Number, default: DateTime.local().toJSDate(), required: true })
+  @Prop({ type: Number, required: true })
   price;
 
   @Prop({ type: Date, default: DateTime.local().toJSDate(), required: true })
