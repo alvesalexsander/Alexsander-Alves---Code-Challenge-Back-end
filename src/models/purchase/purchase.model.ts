@@ -1,30 +1,26 @@
 import { DateTime } from 'luxon';
 import { Prop, Schema } from "@nestjs/mongoose";
-import { Types } from 'mongoose';
+import * as mongoose from 'mongoose';
 
-class PurchasedItem {
-  productId: Types.ObjectId;
-  productName: string;
-  productPrice: number;
-  amount: number;
-}
-
-@Schema()
+@Schema({
+  toJSON: {
+    virtuals: true
+  }
+})
 export class Purchase {
 
-  @Prop({ type: Types.ObjectId, required: true, immutable: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true, immutable: true })
   buyerId;
 
   @Prop({ type: Array, required: true })
   items;
 
-  @Prop({ type: Number, required: true })
-  total;
+  // TODO criar virtual para total do pedido
 
-  @Prop({ type: String, default: '0' })
+  @Prop({ type: String, default: '0', required: false })
   status;
 
-  @Prop({ type: Date, default: DateTime.local().toJSDate(), required: true })
+  @Prop({ type: Date, default: DateTime.local().toJSDate(), required: false })
   createdAt;
 
   @Prop({ type: Date, required: false })

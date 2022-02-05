@@ -15,6 +15,13 @@ export abstract class ApplicationMessages {
   public abstract readonly UPDATE_PRODUCT_NONE: ApplicationMessage;
   public abstract readonly UPDATE_PRODUCT_FAIL: ApplicationMessage;
 
+  public abstract readonly CREATE_PURCHASE_FAIL_CLIENT_NOT_FOUND: ApplicationMessage;
+  public abstract readonly CREATE_PURCHASE_FAIL_NO_ITEMS: ApplicationMessage;
+  public abstract readonly CREATE_PURCHASE_FAIL_MALFORMED_ITEM: ApplicationMessage;
+  public abstract readonly CREATE_PURCHASE_FAIL_PRODUCT_NOT_FOUND: ApplicationMessage;
+  public abstract readonly CREATE_PURCHASE_FAIL_PRODUCT_OUT_OF_STOCK: ApplicationMessage;
+  public abstract readonly CREATE_PURCHASE_FAIL_PRODUCT_PRICE_OUTBOUND: ApplicationMessage;
+
 }
 
 export type ApplicationMessage = string | ((...args) => string);

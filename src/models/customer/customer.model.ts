@@ -2,7 +2,11 @@ import { DateTime } from 'luxon';
 import { Prop, Schema } from "@nestjs/mongoose";
 import { EmailRegexValidator } from '../../utils/validations';
 
-@Schema()
+@Schema({
+  toJSON: {
+    virtuals: true
+  }
+})
 export class Customer {
 
   @Prop({ type: String, required: true, length: 120 })

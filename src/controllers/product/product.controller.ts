@@ -2,21 +2,26 @@ import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from '
 import { Product } from '../../models';
 import { getMessage } from '../../utils/messages/get-message';
 import { ProductService } from '../../services';
+import { PaginatedQuery } from '../../models/dtos/paginated-query.dto';
+import { QueryFilter, PaginatedFilter } from '../../utils';
 
 @Controller('product')
 export class ProductController {
 
   constructor(@Inject(ProductService) private readonly productService) { }
+  
+
+  @Get('/paginated')
+  getPaginatedCustomers(@Query() query: PaginatedQuery & Partial<Product>) {
+    const filter = new QueryFilter<Product>(query, ['name', 'price']);
+    const pagination = new PaginatedFilter(query);
+    return this.productService.getProductsAndCount(filter, null, pagination);
+  }
 
   @Get('/:id')
   getProductById(@Param('id') id: string) {
     return this.productService.getProduct({ _id: id });
   }
-
-  // @Get('/paginated/:limit/:offset/')
-  // getPaginatedProducts(@Query() query: any, @Param('limit') limit, @Param('offset') offset) {
-  //   return this.productService.getProducts(query);
-  // }
 
   @Post('/create')
   createProduct(@Body() body: Product) {

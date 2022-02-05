@@ -2,19 +2,21 @@ import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from '
 import { CustomerService } from '../../services/customer/customer.service';
 import { Customer } from '../../models';
 import { getMessage } from '../../utils/messages/get-message';
+import { PaginatedFilter, QueryFilter } from '../../utils';
+import { PaginatedQuery } from '../../models/dtos/paginated-query.dto';
 
 @Controller('customer')
 export class CustomerController {
 
   constructor(@Inject(CustomerService) private readonly customerService) { }
 
-
   @Get('/paginated')
-  getPaginatedCustomers(@Query() query: any) {
-    console.log(query)
-    return this.customerService.getCustomers(query);
+  getPaginatedCustomers(@Query() query: PaginatedQuery & Partial<Customer>) {
+    const filter = new QueryFilter<Customer>(query, ['name', 'phoneNumber', 'email']);
+    const pagination = new PaginatedFilter(query);
+    return this.customerService.getCustomersAndCount(filter, null, pagination);
   }
-  
+
   @Get('/:id')
   getCustomerById(@Param('id') id: string) {
     return this.customerService.getCustomer({ _id: id });

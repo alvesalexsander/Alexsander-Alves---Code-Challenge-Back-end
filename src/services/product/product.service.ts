@@ -11,6 +11,17 @@ export class ProductService {
     return this.productModel.find(filter, projection);
   }
 
+  async getProductsAndCount(filter: any, projection: any, options: any): Promise<any> {
+    const results = await Promise.all([
+      this.productModel.find(filter, projection, options),
+      this.productModel.countDocuments(filter)
+    ]);
+    return {
+      data: results[0],
+      count: results[1]
+    }
+  }
+
   async getProduct(filter: any): Promise<ProductDocument> {
     return this.productModel.findOne(filter);
   }

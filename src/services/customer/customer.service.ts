@@ -7,8 +7,19 @@ export class CustomerService {
 
   constructor(@Inject('CUSTOMER_MODEL') private customerModel) { }
 
-  async getCustomers(filter: any, projection: any): Promise<CustomerDocument[]> {
-    return this.customerModel.find(filter, projection);
+  async getCustomers(filter: any, projection: any, options: any): Promise<CustomerDocument[]> {
+    return this.customerModel.find(filter, projection, options);
+  }
+
+  async getCustomersAndCount(filter: any, projection: any, options: any): Promise<any> {
+    const results = await Promise.all([
+      this.customerModel.find(filter, projection, options),
+      this.customerModel.countDocuments(filter)
+    ]);
+    return {
+      data: results[0],
+      count: results[1]
+    }
   }
 
   async getCustomer(filter: any): Promise<CustomerDocument> {

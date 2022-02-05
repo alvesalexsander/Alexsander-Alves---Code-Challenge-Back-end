@@ -66,7 +66,6 @@ describe('ProductService', () => {
     const product = await productService.getProduct({ name: 'newName' });
     await productService.deleteProduct(product._id);
     const deletedCustomer = await productService.getProduct({ name: 'newName' });
-    // TODO apagar collection no beforeAll
     expect(deletedCustomer).toBe(null);
   });
 

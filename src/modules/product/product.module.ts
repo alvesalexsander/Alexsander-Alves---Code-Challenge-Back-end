@@ -8,7 +8,7 @@ import { ProductController } from '../../controllers';
   providers: [
     ProductService,
     EntitiesProviders[Provider.PRODUCT_MODEL],
-    ...Object.values(DBProviders)
+    DBProviders[Provider.MONGODB_CONNECTION]
   ]
 })
 export class ProductModule {}

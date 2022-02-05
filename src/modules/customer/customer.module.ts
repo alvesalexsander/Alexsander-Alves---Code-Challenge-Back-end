@@ -8,7 +8,7 @@ import { DBProviders, EntitiesProviders, Provider } from '../../providers';
   providers: [
     CustomerService,
     EntitiesProviders[Provider.CUSTOMER_MODEL],
-    ...Object.values(DBProviders)
+    DBProviders[Provider.MONGODB_CONNECTION]
   ]
 })
 export class CustomerModule {}

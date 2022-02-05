@@ -67,13 +67,10 @@ describe('PurchaseService', () => {
   it('should update an existing purchase', async () => {
     const createdPurchase = await purchaseService.createPurchase(model);
     
-    console.log('created', createdPurchase);
     const update = { status: StatusStates.ACKNOWLEDGED };
     const updated = await purchaseService.updatePurchase(createdPurchase?.id, update);
-    console.log('updated', updated);
     
     const updatedPurchase = await purchaseService.getPurchase({ _id: createdPurchase?.id });
-    console.log('after', updatedPurchase);
     expect(updated.status).toBe(StatusStates.ACKNOWLEDGED);
     toClean.push(purchaseService.deletePurchase(createdPurchase._id));
   });
